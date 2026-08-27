@@ -1,20 +1,26 @@
+[![dashstack_poster](https://github.com/user-attachments/assets/01150ab3-4631-48a2-8c56-5c64d0fd887b)](https://www.dashstack.tech/)
+
 # face_overlay_kit
 
-Reusable, SDK-agnostic **face alignment overlay UI** for Flutter. Feed it face
-position data from *any* source — Binah, Google ML Kit, MediaPipe, or a
-custom model — and it renders a smooth, animated guided overlay: an oval (or
-any shape) with direction guides that tell the user to move left / right / up
-/ down / closer / farther, plus a "centered" success state.
+SDK-agnostic **face alignment overlay UI** for Flutter — feed it face
+position data from *any* detector and get a smooth, animated guided
+overlay back: an oval (or
+any shape) with direction guides that tell the user to move left / right /
+up / down / closer / farther, plus a "centered" success state.
 
-This package contains **no face detection logic**. It never touches camera
-frames. It's a pure visualization/UI toolkit that consumes position data
-your app already computes.
+This package contains **no face detection logic** and never touches
+camera frames — it's a pure visualization/UI toolkit that consumes
+position data your app already computes.
 
 ## Install
 
 ```yaml
 dependencies:
-  face_overlay_kit: ^0.0.1
+  face_overlay_kit: <latest_version>
+```
+
+```
+flutter pub get
 ```
 
 ## Quick start
@@ -24,6 +30,8 @@ data — you write a small mapper function once, and everything downstream
 (alignment logic, animation, painting) is shared.
 
 ```dart
+import 'package:face_overlay_kit/face_overlay_kit.dart';
+
 FaceOverlay(
   faceData: faceData, // your mapped FaceData
   config: FaceOverlayConfig(
@@ -36,16 +44,20 @@ FaceOverlay(
 )
 ```
 
-`FaceOverlay` stacks on top of your camera preview — pass it as `child`, or
-place `FaceOverlay` in your own `Stack` above `CameraPreview`. The package
-never creates a camera preview of its own.
+`FaceOverlay` stacks on top of your camera preview — pass it as `child`,
+or place `FaceOverlay` in your own `Stack` above `CameraPreview`. The
+package never creates a camera preview of its own.
 
-### Mapping from your detector
+> **First time using this?** `FaceOverlay` alone won't detect anything —
+> you still need a camera plugin and a face detector in *your* app. Read
+> "Mapping from your detector" below.
 
-**Google ML Kit (`Face`)**
+## Mapping from your detector
+
+**Example mapper**
 
 ```dart
-FaceData mapMlKitFace(Face face, Size imageSize) {
+FaceData mapDetectorFace(Face face, Size imageSize) {
   final box = face.boundingBox;
   return FaceData(
     faceDetected: true,
@@ -64,26 +76,61 @@ FaceData mapMlKitFace(Face face, Size imageSize) {
 }
 ```
 
-**Binah / MediaPipe / custom** — same idea: normalize whatever bounding
+**Any other detector** — same idea: normalize whatever bounding
 box or landmark set you get into `0..1` and construct a `FaceData`. See
-`example/lib/main.dart` for simulated data covering every scenario.
+[`example/lib/face_camera_controller.dart`](example/lib/face_camera_controller.dart)
+for a full, real-camera version of this mapper, and
+[`example/lib/main.dart`](example/lib/main.dart) for simulated data
+covering every scenario.
 
-## Configuration reference
+## `FaceOverlay` widget
+
+| Param | Type | Purpose |
+| --- | --- | --- |
+| `faceData` | `FaceData` | Latest detection result — update every frame, the overlay lerps between updates itself |
+| `config` | `FaceOverlayConfig` | Visual and behavioral configuration (see below) |
+| `scanProgress` | `double?` | `0..1` hold-still/scan progress arc, drawn in `config.progressColor` — you own the timing, this only draws it |
+| `onAlignmentChanged` | `ValueChanged<FaceAlignment>?` | Fires once per state *transition*, not per frame |
+| `child` | `Widget?` | Content painted below the overlay, e.g. your `CameraPreview` |
+
+`FaceAlignment` (from `AlignmentCalculator.calculate`): `noFace`, `tooFar`,
+`tooClose`, `left`, `right`, `top`, `bottom`, `centered`.
+
+## `FaceOverlayConfig` reference
 
 | Field | Type | Purpose |
-|---|---|---|
+| --- | --- | --- |
 | `shape` | `FaceOverlayShape` | `oval`, `circle`, `rectangle`, or `.custom(pathBuilder)` |
 | `activeColor` / `successColor` / `errorColor` | `Color` | Border/indicator color per state |
 | `strokeWidth` | `double` | Shape border width |
-| `backgroundOpacity` | `double` | Scrim opacity outside the cut-out shape |
-| `showGuideLines` / `showDirectionIndicator` | `bool` | Toggle guide lines / indicator dot |
+| `dashedBorder` | `bool` | Draw the shape border itself as a dashed line |
+| `showCenterCrosshair` | `bool` | Dashed crosshair through the shape center |
+| `backgroundOpacity` / `scrimColor` | `double` / `Color` | Scrim tint and opacity outside the cut-out shape |
+| `showGuideLines` / `showDirectionIndicator` | `bool` | Toggle guide lines / direction indicator dot |
+| `showMessage` | `bool` | Toggle the built-in alignment text (off if you render your own) |
 | `guideLineStyle` | `GuideLineStyle` | Dash length/gap, color, stroke width, length |
 | `guideDotStyle` | `GuideDotStyle` | Dot size, color, spacing from shape edge |
+| `shapeFitPadding` | `double` | Headroom around the detected face when sizing the shape |
+| `shapeAspectRatio` | `double?` | Forces a vertical "egg" oval (`height = width * ratio`); `null` uses the raw detected aspect |
 | `animationDuration` / `animationCurve` | `Duration` / `Curve` | Drives all lerps |
 | `tolerance` | `AlignmentTolerance` | Position tolerance, min/max/ideal face size |
 | `messages` | `OverlayMessages` | Per-`FaceAlignment` text, fully overridable |
 | `customIndicatorBuilder` | `Widget Function(FaceAlignment)?` | Replace the built-in direction indicator |
 | `successWidgetBuilder` / `errorWidgetBuilder` | `Widget Function()?` | Replace the built-in success/error content |
+
+### `FaceOverlaySettingsPanel`
+
+Don't want to build a settings UI yourself? `face_overlay_kit` ships one:
+a fully-controlled panel (border color swatches, shape picker, toggle
+switches, stroke-width slider) that edits a `FaceOverlayConfig` via
+`copyWith` and hands the result back.
+
+```dart
+FaceOverlaySettingsPanel(
+  config: _config,
+  onConfigChanged: (next) => setState(() => _config = next),
+)
+```
 
 ## Architecture
 
@@ -109,8 +156,7 @@ FaceOverlayPainter + DirectionIndicatorPainter  ──►  FaceOverlay widget
 ## Adding support for a new detection SDK
 
 Nothing to change in this package — write a mapper function from your
-SDK's output to `FaceData` (see examples above) and everything else just
-works.
+SDK's output to `FaceData` (see above) and everything else just works.
 
 ## Testing
 
@@ -126,12 +172,13 @@ transition semantics, disposal).
 
 Run the demo app (`cd example && flutter run`) and pick a mode:
 
-- **Live Camera Demo** (`example/lib/live_face_overlay_page.dart`) — real
-  front camera feed via `camera`, real detection via
-  `google_mlkit_face_detection`, mapped to `FaceData` and fed to
-  `FaceOverlay`. This is the only code in the example that talks to a
-  camera or a detector; swapping detectors only changes the mapping
-  function in this one file.
+- **Live Camera Demo** — real front camera feed via `camera`, real
+  detection via `google_mlkit_face_detection`. All the camera/detector
+  glue lives in [`FaceCameraController`](example/lib/face_camera_controller.dart)
+  — an injectable `ChangeNotifier`, not tangled into the page — so
+  [`live_face_overlay_page.dart`](example/lib/live_face_overlay_page.dart)
+  itself is just UI wiring. Swap detectors and only the controller's
+  mapper method changes.
 - **Simulated Demo** (`example/lib/simulated_demo_page.dart`) — a scenario
   picker driving canned `FaceData`: no face, too far, too close, moved
   left/right/up/down, and centered → success animation, with a fake
@@ -140,3 +187,23 @@ Run the demo app (`cd example && flutter run`) and pick a mode:
 The live demo needs a camera permission grant on first run (Android/iOS
 prompt) and a physical device (simulators/emulators without a camera will
 show a camera error).
+
+## Troubleshooting
+
+**Overlay never turns "centered"** — check `AlignmentTolerance` against
+your detector's actual output range; most detectors' `boundingBox` is in
+raw pixels, `FaceData` expects `0..1` normalized values (see the mapper
+above). A un-normalized box will read as permanently "too close".
+
+**`onAlignmentChanged` fires too often / not at all** — it fires once per
+*transition*, not per frame. If `faceData` never actually changes
+alignment bucket (e.g. jitter within tolerance), it won't re-fire.
+
+**Front camera feed looks mirrored/unmirrored inconsistently** — Android's
+camera plugin already mirrors the front preview for display; iOS doesn't.
+Mirror manually only on iOS — see `isFrontCamera` handling in
+`FaceCameraController`.
+
+## Bugs & Credits
+Report bugs and ask questions on [GitHub Issues](https://github.com/Androidsignal/face_overlay_kit/issues).
+Maintained by [Dashstack Infotech, Surat](https://www.dashstack.tech/).
