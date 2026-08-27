@@ -1,0 +1,19 @@
+name: face_overlay_kit
+description: "Reusable, SDK-agnostic face alignment overlay UI for Flutter. Feed it face position data from any detector (Binah, ML Kit, MediaPipe, custom) and get a smooth, animated guided overlay in return."
+version: 0.0.1
+homepage:
+
+environment:
+  sdk: ^3.13.0
+  flutter: ">=1.17.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
