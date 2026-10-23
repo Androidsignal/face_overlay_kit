@@ -1,6 +1,6 @@
 name: face_overlay_kit
 description: "Reusable, SDK-agnostic face alignment overlay UI for Flutter. Feed it face position data from any detector and get a smooth, animated guided overlay in return."
-version: 0.0.1
+version: 0.0.2
 homepage: https://github.com/Androidsignal/face_overlay_kit
 repository: https://github.com/Androidsignal/face_overlay_kit
 issue_tracker: https://github.com/Androidsignal/face_overlay_kit/issues
@@ -16,6 +16,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^6.0.0
+  flutter_lints: ^5.0.0
 
 flutter:
+  uses-material-design: true

@@ -1,3 +1,8 @@
+## 0.0.2
+
+- Updated documentation in `README.md`.
+- Added usage screenshots to `README.md`.
+
 ## 0.0.1
 
 - Initial release.

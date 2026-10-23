@@ -8,6 +8,14 @@ overlay back: an oval (or
 any shape) with direction guides that tell the user to move left / right /
 up / down / closer / farther, plus a "centered" success state.
 
+## Screenshots
+
+| Centered | Move Up | Move Down | Move Left |
+| :---: | :---: | :---: | :---: |
+| ![Centered](screenshots/01_centered.png) | ![Move Up](screenshots/02_move_up.png) | ![Move Down](screenshots/03_move_down.png) | ![Move Left](screenshots/04_move_left.png) |
+| **Move Right** | **Too Close** | **Too Far** | **No Face** |
+| ![Move Right](screenshots/05_move_right.png) | ![Too Close](screenshots/06_too_close.png) | ![Too Far](screenshots/07_too_far.png) | ![No Face](screenshots/08_no_face.png) |
+
 This package contains **no face detection logic** and never touches
 camera frames — it's a pure visualization/UI toolkit that consumes
 position data your app already computes.
