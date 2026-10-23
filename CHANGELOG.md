@@ -1,3 +1,7 @@
+## 0.0.3
+
+- Added `screenshots` section to `pubspec.yaml` for pub.dev gallery support.
+
 ## 0.0.2
 
 - Updated documentation in `README.md`.
