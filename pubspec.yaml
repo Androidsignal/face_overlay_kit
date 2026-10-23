@@ -9,6 +9,24 @@ environment:
   sdk: ^3.13.0
   flutter: ">=1.17.0"
 
+screenshots:
+  - description: 'Face centered success state'
+    path: screenshots/01_centered.png
+  - description: 'Directional guide: Move Up'
+    path: screenshots/02_move_up.png
+  - description: 'Directional guide: Move Down'
+    path: screenshots/03_move_down.png
+  - description: 'Directional guide: Move Left'
+    path: screenshots/04_move_left.png
+  - description: 'Directional guide: Move Right'
+    path: screenshots/05_move_right.png
+  - description: 'Warning: Too Close'
+    path: screenshots/06_too_close.png
+  - description: 'Warning: Too Far'
+    path: screenshots/07_too_far.png
+  - description: 'State: No Face detected'
+    path: screenshots/08_no_face.png
+
 dependencies:
   flutter:
     sdk: flutter
@@ -16,7 +34,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^5.0.0
+  flutter_lints: ^3.0.0
 
 flutter:
   uses-material-design: true
